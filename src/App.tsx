@@ -1,20 +1,18 @@
 import React, { useState, useRef } from 'react';
 import { Stage, Layer, Rect, Circle, Group, Text, Line } from 'react-konva';
 import { 
-  Minus, 
-  RectangleHorizontal, 
   Circle as CircleIcon, 
-  Armchair, 
+  RectangleHorizontal, 
   CircleDot, 
-  Square, 
+  Armchair, 
   Monitor, 
   Projector 
 } from 'lucide-react';
 import './App.css';
 
 type FurnitureType = 
-  | 'wall-segment' | 'rectangle' | 'circle'  // Basic Shape
-  | 'arm-chair' | 'round-table' | 'square-table'  // Furniture
+  | 'wall-segment' | 'pillar'  // Basic Shapes
+  | 'rectangle' | 'round-table' | 'arm-chair'  // Furniture
   | 'monitor' | 'projector';  // Equipment
 
 interface FurnitureItem {
@@ -30,6 +28,7 @@ interface FurnitureItem {
 const App = () => {
   const [furniture, setFurniture] = useState<FurnitureItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [floorPlanName, setFloorPlanName] = useState<string>('My Floor Plan');
   const stageRef = useRef<any>(null);
   const nextIdRef = useRef(0);
 
@@ -66,8 +65,8 @@ const App = () => {
     
     const itemType = e.dataTransfer.getData('text/plain') as FurnitureType;
     const validTypes: FurnitureType[] = [
-      'wall-segment', 'rectangle', 'circle',
-      'arm-chair', 'round-table', 'square-table',
+      'wall-segment', 'pillar',
+      'rectangle', 'round-table', 'arm-chair',
       'monitor', 'projector'
     ];
     if (!itemType || !validTypes.includes(itemType)) {
@@ -83,11 +82,10 @@ const App = () => {
     const getDimensions = (type: FurnitureType) => {
       switch (type) {
         case 'wall-segment': return { width: 120, height: 20 };
+        case 'pillar': return { width: 40, height: 40 };
         case 'rectangle': return { width: 80, height: 60 };
-        case 'circle': return { width: 60, height: 60 };
-        case 'arm-chair': return { width: 50, height: 60 };
         case 'round-table': return { width: 70, height: 70 };
-        case 'square-table': return { width: 70, height: 70 };
+        case 'arm-chair': return { width: 50, height: 60 };
         case 'monitor': return { width: 50, height: 40 };
         case 'projector': return { width: 60, height: 40 };
         default: return { width: 60, height: 60 };
@@ -117,6 +115,116 @@ const App = () => {
       setFurniture((prev) => prev.filter((item) => item.id !== selectedId));
       setSelectedId(null);
     }
+  };
+
+  // Save floor plan as JSON file
+  const saveAsJSON = () => {
+    const floorPlanData = {
+      name: floorPlanName,
+      furniture: furniture,
+      metadata: {
+        createdAt: new Date().toISOString(),
+        canvasWidth: canvasWidth,
+        canvasHeight: canvasHeight,
+      },
+    };
+
+    const jsonString = JSON.stringify(floorPlanData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${floorPlanName.replace(/\s+/g, '_')}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  // Load floor plan from JSON file
+  const loadFromJSON = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const jsonData = JSON.parse(e.target?.result as string);
+        if (jsonData.furniture && Array.isArray(jsonData.furniture)) {
+          setFurniture(jsonData.furniture);
+          if (jsonData.name) {
+            setFloorPlanName(jsonData.name);
+          }
+          setSelectedId(null);
+          alert('Floor plan loaded successfully!');
+        } else {
+          alert('Invalid floor plan file format');
+        }
+      } catch (error) {
+        console.error('Error loading JSON:', error);
+        alert('Error loading floor plan file');
+      }
+    };
+    reader.readAsText(file);
+    // Reset input so same file can be loaded again
+    event.target.value = '';
+  };
+
+  // Save to localStorage
+  const saveToLocalStorage = () => {
+    try {
+      const floorPlanData = {
+        name: floorPlanName,
+        furniture: furniture,
+        createdAt: new Date().toISOString(),
+      };
+      localStorage.setItem('floorPlan', JSON.stringify(floorPlanData));
+      alert('Floor plan saved to browser storage!');
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+      alert('Error saving floor plan');
+    }
+  };
+
+  // Load from localStorage
+  const loadFromLocalStorage = () => {
+    try {
+      const data = localStorage.getItem('floorPlan');
+      if (data) {
+        const floorPlanData = JSON.parse(data);
+        setFurniture(floorPlanData.furniture || []);
+        if (floorPlanData.name) {
+          setFloorPlanName(floorPlanData.name);
+        }
+        setSelectedId(null);
+        alert('Floor plan loaded from browser storage!');
+      } else {
+        alert('No saved floor plan found');
+      }
+    } catch (error) {
+      console.error('Error loading from localStorage:', error);
+      alert('Error loading floor plan');
+    }
+  };
+
+  // Copy JSON to clipboard
+  const copyJSONToClipboard = () => {
+    const floorPlanData = {
+      name: floorPlanName,
+      furniture: furniture,
+      metadata: {
+        createdAt: new Date().toISOString(),
+        canvasWidth: canvasWidth,
+        canvasHeight: canvasHeight,
+      },
+    };
+    const jsonData = JSON.stringify(floorPlanData, null, 2);
+    navigator.clipboard.writeText(jsonData).then(() => {
+      alert('JSON data copied to clipboard!');
+    }).catch((error) => {
+      console.error('Error copying to clipboard:', error);
+      alert('Error copying to clipboard');
+    });
   };
 
   const renderFurniture = (item: FurnitureItem) => {
@@ -188,7 +296,7 @@ const App = () => {
           </Group>
         );
 
-      case 'circle':
+      case 'pillar':
         return (
           <Group
             key={item.id}
@@ -207,7 +315,7 @@ const App = () => {
               strokeWidth={isSelected ? 3 : 2}
             />
             <Text
-              text="Circle"
+              text="Pillar"
               fontSize={10}
               fill="#333"
               x={-20}
@@ -291,43 +399,6 @@ const App = () => {
               fill="white"
               x={-30}
               y={-6}
-              visible={isSelected}
-            />
-          </Group>
-        );
-
-      case 'square-table':
-        return (
-          <Group
-            key={item.id}
-            id={item.id}
-            x={item.x}
-            y={item.y}
-            draggable
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-            onClick={() => setSelectedId(item.id)}
-          >
-            <Rect
-              width={item.width}
-              height={item.height}
-              fill="#8B4513"
-              stroke={isSelected ? '#00ff00' : '#654321'}
-              strokeWidth={isSelected ? 3 : 2}
-            />
-            <Rect
-              x={5}
-              y={5}
-              width={item.width - 10}
-              height={item.height - 10}
-              fill="#D2691E"
-            />
-            <Text
-              text="Square Table"
-              fontSize={9}
-              fill="white"
-              x={item.width / 2 - 35}
-              y={item.height / 2 - 5}
               visible={isSelected}
             />
           </Group>
@@ -429,11 +500,11 @@ const App = () => {
   return (
     <div className="app-container">
       <div className="sidebar">
-        <h2>Floor Plan Designer</h2>
+        <h2>Floor Plan Elements</h2>
         
-        {/* Basic Shape Section */}
+        {/* Basic Shapes Section */}
         <div className="toolbar">
-          <h3>Basic Shape</h3>
+          <h3>Basic Shapes</h3>
           <div className="toolbar-items">
             <div
               className="toolbar-item"
@@ -444,35 +515,22 @@ const App = () => {
               }}
             >
               <div className="toolbar-icon">
-                <Minus size={24} color="#2c3e50" />
+                <RectangleHorizontal size={20} color="#2c3e50" strokeWidth={1.5} />
               </div>
-              <span>Wall Segment</span>
+              <span>Wall Segr</span>
             </div>
             <div
               className="toolbar-item"
               draggable={true}
               onDragStart={(e) => {
                 e.dataTransfer.effectAllowed = 'copy';
-                e.dataTransfer.setData('text/plain', 'rectangle');
+                e.dataTransfer.setData('text/plain', 'pillar');
               }}
             >
               <div className="toolbar-icon">
-                <RectangleHorizontal size={24} color="#2c3e50" />
+                <CircleIcon size={20} color="#2c3e50" strokeWidth={1.5} />
               </div>
-              <span>Rectangle</span>
-            </div>
-            <div
-              className="toolbar-item"
-              draggable={true}
-              onDragStart={(e) => {
-                e.dataTransfer.effectAllowed = 'copy';
-                e.dataTransfer.setData('text/plain', 'circle');
-              }}
-            >
-              <div className="toolbar-icon">
-                <CircleIcon size={24} color="#2c3e50" />
-              </div>
-              <span>Circle</span>
+              <span>Pillar</span>
             </div>
           </div>
         </div>
@@ -486,13 +544,13 @@ const App = () => {
               draggable={true}
               onDragStart={(e) => {
                 e.dataTransfer.effectAllowed = 'copy';
-                e.dataTransfer.setData('text/plain', 'arm-chair');
+                e.dataTransfer.setData('text/plain', 'rectangle');
               }}
             >
               <div className="toolbar-icon">
-                <Armchair size={24} color="#2c3e50" />
+                <RectangleHorizontal size={20} color="#2c3e50" strokeWidth={1.5} />
               </div>
-              <span>Arm Chair</span>
+              <span>Rectangle</span>
             </div>
             <div
               className="toolbar-item"
@@ -503,7 +561,7 @@ const App = () => {
               }}
             >
               <div className="toolbar-icon">
-                <CircleDot size={24} color="#2c3e50" />
+                <CircleDot size={20} color="#2c3e50" />
               </div>
               <span>Round Table</span>
             </div>
@@ -512,13 +570,13 @@ const App = () => {
               draggable={true}
               onDragStart={(e) => {
                 e.dataTransfer.effectAllowed = 'copy';
-                e.dataTransfer.setData('text/plain', 'square-table');
+                e.dataTransfer.setData('text/plain', 'arm-chair');
               }}
             >
               <div className="toolbar-icon">
-                <Square size={24} color="#2c3e50" />
+                <Armchair size={20} color="#2c3e50" />
               </div>
-              <span>Square Table</span>
+              <span>Armchair</span>
             </div>
           </div>
         </div>
@@ -536,9 +594,9 @@ const App = () => {
               }}
             >
               <div className="toolbar-icon">
-                <Monitor size={24} color="#2c3e50" />
+                <Monitor size={20} color="#2c3e50" />
               </div>
-              <span>Monitor</span>
+              <span>Monitor C</span>
             </div>
             <div
               className="toolbar-item"
@@ -549,7 +607,7 @@ const App = () => {
               }}
             >
               <div className="toolbar-icon">
-                <Projector size={24} color="#2c3e50" />
+                <Projector size={20} color="#2c3e50" />
               </div>
               <span>Projector</span>
             </div>
@@ -558,6 +616,15 @@ const App = () => {
 
         <div className="controls">
           <h3>Controls</h3>
+          <div className="input-group">
+            <input
+              type="text"
+              value={floorPlanName}
+              onChange={(e) => setFloorPlanName(e.target.value)}
+              placeholder="Floor Plan Name"
+              className="floor-plan-name-input"
+            />
+          </div>
           <button
             onClick={deleteSelected}
             disabled={!selectedId}
@@ -575,12 +642,52 @@ const App = () => {
             Clear All
           </button>
         </div>
-        <div className="info">
+
+        <div className="save-load-section">
+          <h3>Save & Load</h3>
+          <button
+            onClick={saveAsJSON}
+            className="save-btn"
+            disabled={furniture.length === 0}
+          >
+            Save as JSON File
+          </button>
+          <label className="load-btn-label">
+            <input
+              type="file"
+              accept=".json"
+              onChange={loadFromJSON}
+              style={{ display: 'none' }}
+            />
+            <span className="load-btn">Load from JSON File</span>
+          </label>
+          <button
+            onClick={saveToLocalStorage}
+            className="save-btn"
+            disabled={furniture.length === 0}
+          >
+            Save to Browser
+          </button>
+          <button
+            onClick={loadFromLocalStorage}
+            className="load-btn"
+          >
+            Load from Browser
+          </button>
+          <button
+            onClick={copyJSONToClipboard}
+            className="copy-btn"
+            disabled={furniture.length === 0}
+          >
+            Copy JSON to Clipboard
+          </button>
+        </div>
+        {/* <div className="info">
           <p>• Drag items from sidebar to canvas</p>
           <p>• Click items to select</p>
           <p>• Drag items on canvas to move</p>
           <p>• Delete selected items</p>
-        </div>
+        </div> */}
       </div>
       <div 
         className="canvas-container"

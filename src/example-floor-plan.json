@@ -1,0 +1,51 @@
+{
+  "name": "Office Floor Plan",
+  "furniture": [
+    {
+      "id": "item-0",
+      "type": "wall-segment",
+      "x": 100,
+      "y": 50,
+      "width": 120,
+      "height": 20
+    },
+    {
+      "id": "item-1",
+      "type": "pillar",
+      "x": 200,
+      "y": 150,
+      "width": 40,
+      "height": 40
+    },
+    {
+      "id": "item-2",
+      "type": "round-table",
+      "x": 300,
+      "y": 200,
+      "width": 70,
+      "height": 70
+    },
+    {
+      "id": "item-3",
+      "type": "arm-chair",
+      "x": 400,
+      "y": 250,
+      "width": 50,
+      "height": 60
+    },
+    {
+      "id": "item-4",
+      "type": "monitor",
+      "x": 500,
+      "y": 300,
+      "width": 50,
+      "height": 40
+    }
+  ],
+  "metadata": {
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "canvasWidth": 1200,
+    "canvasHeight": 800
+  }
+}
+
