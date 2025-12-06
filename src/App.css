@@ -8,8 +8,8 @@
 
 .sidebar {
   width: 240px;
-  background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
-  color: white;
+  background: white;
+  color: #333;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -21,7 +21,7 @@
   margin: 0 0 20px 0;
   font-size: 1.5em;
   text-align: center;
-  color: #ecf0f1;
+  color: #2c3e50;
   border-bottom: 2px solid #3498db;
   padding-bottom: 10px;
 }
@@ -33,7 +33,7 @@
 .toolbar h3 {
   margin: 0 0 15px 0;
   font-size: 1.1em;
-  color: #ecf0f1;
+  color: #2c3e50;
 }
 
 .toolbar-items {
@@ -47,7 +47,7 @@
   align-items: center;
   gap: 12px;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.1);
+  background: #f5f5f5;
   border-radius: 8px;
   cursor: grab;
   transition: all 0.2s ease;
@@ -55,7 +55,7 @@
 }
 
 .toolbar-item:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: #e8e8e8;
   border-color: #3498db;
   transform: translateX(5px);
 }
@@ -72,24 +72,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
+  background: #e8e8e8;
 }
 
 .toolbar-item span {
   font-weight: 500;
   font-size: 0.95em;
+  color: #333;
 }
 
 .controls {
   margin-bottom: 20px;
   padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-top: 1px solid #e0e0e0;
 }
 
 .controls h3 {
   margin: 0 0 15px 0;
   font-size: 1.1em;
-  color: #ecf0f1;
+  color: #2c3e50;
 }
 
 .controls button {
@@ -129,9 +130,9 @@
 .info {
   margin-top: auto;
   padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-top: 1px solid #e0e0e0;
   font-size: 0.85em;
-  color: #bdc3c7;
+  color: #666;
   line-height: 1.6;
 }
 
@@ -157,14 +158,14 @@
 }
 
 .sidebar::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
+  background: #f5f5f5;
 }
 
 .sidebar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
+  background: #ccc;
   border-radius: 4px;
 }
 
 .sidebar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.5);
+  background: #999;
 }

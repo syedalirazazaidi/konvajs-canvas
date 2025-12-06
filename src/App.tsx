@@ -444,7 +444,7 @@ const App = () => {
               }}
             >
               <div className="toolbar-icon">
-                <Minus size={24} color="#ecf0f1" />
+                <Minus size={24} color="#2c3e50" />
               </div>
               <span>Wall Segment</span>
             </div>
@@ -457,7 +457,7 @@ const App = () => {
               }}
             >
               <div className="toolbar-icon">
-                <RectangleHorizontal size={24} color="#ecf0f1" />
+                <RectangleHorizontal size={24} color="#2c3e50" />
               </div>
               <span>Rectangle</span>
             </div>
@@ -470,7 +470,7 @@ const App = () => {
               }}
             >
               <div className="toolbar-icon">
-                <CircleIcon size={24} color="#ecf0f1" />
+                <CircleIcon size={24} color="#2c3e50" />
               </div>
               <span>Circle</span>
             </div>
@@ -490,7 +490,7 @@ const App = () => {
               }}
             >
               <div className="toolbar-icon">
-                <Armchair size={24} color="#ecf0f1" />
+                <Armchair size={24} color="#2c3e50" />
               </div>
               <span>Arm Chair</span>
             </div>
@@ -503,7 +503,7 @@ const App = () => {
               }}
             >
               <div className="toolbar-icon">
-                <CircleDot size={24} color="#ecf0f1" />
+                <CircleDot size={24} color="#2c3e50" />
               </div>
               <span>Round Table</span>
             </div>
@@ -516,7 +516,7 @@ const App = () => {
               }}
             >
               <div className="toolbar-icon">
-                <Square size={24} color="#ecf0f1" />
+                <Square size={24} color="#2c3e50" />
               </div>
               <span>Square Table</span>
             </div>
@@ -536,7 +536,7 @@ const App = () => {
               }}
             >
               <div className="toolbar-icon">
-                <Monitor size={24} color="#ecf0f1" />
+                <Monitor size={24} color="#2c3e50" />
               </div>
               <span>Monitor</span>
             </div>
@@ -549,7 +549,7 @@ const App = () => {
               }}
             >
               <div className="toolbar-icon">
-                <Projector size={24} color="#ecf0f1" />
+                <Projector size={24} color="#2c3e50" />
               </div>
               <span>Projector</span>
             </div>
