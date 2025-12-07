@@ -100,9 +100,7 @@ export const loadFromLocalStorage = (): FloorPlanData | null => {
   }
 };
 
-/**
- * Copy JSON to clipboard
- */
+
 export const copyJSONToClipboard = (
   name: string,
   furniture: FurnitureItem[],

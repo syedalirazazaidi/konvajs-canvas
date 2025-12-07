@@ -1,7 +1,15 @@
 import React, { useRef } from "react";
-import { Stage, Layer, Rect, Circle, Group, Text, Line } from "react-konva";
+import { Stage, Layer, Rect, Group, Text, Line } from "react-konva";
+import {
+  Circle as CircleIcon,
+  RectangleHorizontal,
+  CircleDot,
+  Armchair,
+  Monitor,
+  Projector,
+} from "lucide-react";
 import type { FurnitureItem } from "../types/floorPlan";
-import { getDefaultColor } from "../utils/furnitureUtils";
+import IconImage from "./IconImage";
 
 interface CanvasProps {
   furniture: FurnitureItem[];
@@ -70,23 +78,27 @@ const Canvas: React.FC<CanvasProps> = ({
             <Rect
               width={item.width}
               height={item.height}
-              fill={item.color || getDefaultColor(item.type)}
-              stroke={isSelected ? "#00ff00" : "#654321"}
-              strokeWidth={isSelected ? 3 : 2}
+              fill="transparent"
+              stroke={isSelected ? "#00ff00" : "transparent"}
+              strokeWidth={isSelected ? 3 : 0}
             />
-            <Line
-              points={[0, item.height / 2, item.width, item.height / 2]}
-              stroke="#654321"
-              strokeWidth={1}
+            <IconImage
+              IconComponent={RectangleHorizontal}
+              x={0}
+              y={0}
+              width={item.width}
+              height={item.height}
+              color={item.color || "#2c3e50"}
             />
-            <Text
-              text={item.name || "Wall"}
-              fontSize={10}
-              fill="white"
-              x={item.width / 2 - 15}
-              y={item.height / 2 - 6}
-              visible={isSelected}
-            />
+            {isSelected && (
+              <Text
+                text={item.name || "Wall"}
+                fontSize={9}
+                fill="#333"
+                x={item.width / 2 - 15}
+                y={item.height + 5}
+              />
+            )}
           </Group>
         );
 
@@ -106,18 +118,27 @@ const Canvas: React.FC<CanvasProps> = ({
             <Rect
               width={item.width}
               height={item.height}
-              fill={item.color || getDefaultColor(item.type)}
-              stroke={isSelected ? "#00ff00" : "#999"}
-              strokeWidth={isSelected ? 3 : 2}
+              fill="transparent"
+              stroke={isSelected ? "#00ff00" : "transparent"}
+              strokeWidth={isSelected ? 3 : 0}
             />
-            <Text
-              text={item.name || "Rectangle"}
-              fontSize={10}
-              fill="#333"
-              x={item.width / 2 - 30}
-              y={item.height / 2 - 6}
-              visible={isSelected}
+            <IconImage
+              IconComponent={RectangleHorizontal}
+              x={0}
+              y={0}
+              width={item.width}
+              height={item.height}
+              color={item.color || "#2c3e50"}
             />
+            {isSelected && (
+              <Text
+                text={item.name || "Rectangle"}
+                fontSize={9}
+                fill="#333"
+                x={item.width / 2 - 30}
+                y={item.height + 5}
+              />
+            )}
           </Group>
         );
 
@@ -134,20 +155,30 @@ const Canvas: React.FC<CanvasProps> = ({
             onDragEnd={handleDragEnd}
             onClick={() => onSelectedIdChange(item.id)}
           >
-            <Circle
-              radius={item.width / 2}
-              fill={item.color || getDefaultColor(item.type)}
-              stroke={isSelected ? "#00ff00" : "#999"}
-              strokeWidth={isSelected ? 3 : 2}
+            <Rect
+              width={item.width}
+              height={item.height}
+              fill="transparent"
+              stroke={isSelected ? "#00ff00" : "transparent"}
+              strokeWidth={isSelected ? 3 : 0}
             />
-            <Text
-              text="Pillar"
-              fontSize={10}
-              fill="#333"
-              x={-20}
-              y={-6}
-              visible={isSelected}
+            <IconImage
+              IconComponent={CircleIcon}
+              x={0}
+              y={0}
+              width={item.width}
+              height={item.height}
+              color={item.color || "#2c3e50"}
             />
+            {isSelected && (
+              <Text
+                text="Pillar"
+                fontSize={9}
+                fill="#333"
+                x={item.width / 2 - 20}
+                y={item.height + 5}
+              />
+            )}
           </Group>
         );
 
@@ -158,6 +189,7 @@ const Canvas: React.FC<CanvasProps> = ({
             id={item.id}
             x={item.x}
             y={item.y}
+            rotation={item.rotation || 0}
             draggable
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
@@ -166,34 +198,27 @@ const Canvas: React.FC<CanvasProps> = ({
             <Rect
               width={item.width}
               height={item.height}
-              cornerRadius={5}
-              fill={item.color || getDefaultColor(item.type)}
-              stroke={isSelected ? "#00ff00" : "#2A2A2A"}
-              strokeWidth={isSelected ? 3 : 2}
+              fill="transparent"
+              stroke={isSelected ? "#00ff00" : "transparent"}
+              strokeWidth={isSelected ? 3 : 0}
             />
-            <Rect
-              x={5}
-              y={5}
-              width={item.width - 10}
-              height={item.height - 15}
-              cornerRadius={3}
-              fill="#6A6A6A"
+            <IconImage
+              IconComponent={Armchair}
+              x={0}
+              y={0}
+              width={item.width}
+              height={item.height}
+              color={item.color || "#2c3e50"}
             />
-            <Rect
-              x={item.width - 15}
-              y={item.height - 15}
-              width={10}
-              height={10}
-              fill="#5A5A5A"
-            />
-            <Text
-              text={item.name || "Arm Chair"}
-              fontSize={9}
-              fill="white"
-              x={item.width / 2 - 25}
-              y={item.height / 2 - 5}
-              visible={isSelected}
-            />
+            {isSelected && (
+              <Text
+                text={item.name || "Arm Chair"}
+                fontSize={9}
+                fill="#333"
+                x={item.width / 2 - 25}
+                y={item.height + 5}
+              />
+            )}
           </Group>
         );
 
@@ -210,21 +235,30 @@ const Canvas: React.FC<CanvasProps> = ({
             onDragEnd={handleDragEnd}
             onClick={() => onSelectedIdChange(item.id)}
           >
-            <Circle
-              radius={item.width / 2}
-              fill={item.color || getDefaultColor(item.type)}
-              stroke={isSelected ? "#00ff00" : "#654321"}
-              strokeWidth={isSelected ? 3 : 2}
+            <Rect
+              width={item.width}
+              height={item.height}
+              fill="transparent"
+              stroke={isSelected ? "#00ff00" : "transparent"}
+              strokeWidth={isSelected ? 3 : 0}
             />
-            <Circle radius={item.width / 2 - 5} fill="#D2691E" />
-            <Text
-              text={item.name || "Round Table"}
-              fontSize={9}
-              fill="white"
-              x={-30}
-              y={-6}
-              visible={isSelected}
+            <IconImage
+              IconComponent={CircleDot}
+              x={0}
+              y={0}
+              width={item.width}
+              height={item.height}
+              color={item.color || "#2c3e50"}
             />
+            {isSelected && (
+              <Text
+                text={item.name || "Round Table"}
+                fontSize={9}
+                fill="#333"
+                x={item.width / 2 - 30}
+                y={item.height + 5}
+              />
+            )}
           </Group>
         );
 
@@ -244,33 +278,27 @@ const Canvas: React.FC<CanvasProps> = ({
             <Rect
               width={item.width}
               height={item.height}
-              cornerRadius={2}
-              fill={item.color || getDefaultColor(item.type)}
-              stroke={isSelected ? "#00ff00" : "#000"}
-              strokeWidth={isSelected ? 3 : 2}
+              fill="transparent"
+              stroke={isSelected ? "#00ff00" : "transparent"}
+              strokeWidth={isSelected ? 3 : 0}
             />
-            <Rect
-              x={2}
-              y={2}
-              width={item.width - 4}
-              height={item.height - 8}
-              fill="#2a2a2a"
+            <IconImage
+              IconComponent={Monitor}
+              x={0}
+              y={0}
+              width={item.width}
+              height={item.height}
+              color={item.color || "#2c3e50"}
             />
-            <Rect
-              x={item.width / 2 - 8}
-              y={item.height - 6}
-              width={16}
-              height={4}
-              fill="#3a3a3a"
-            />
-            <Text
-              text="Monitor"
-              fontSize={9}
-              fill="white"
-              x={item.width / 2 - 20}
-              y={item.height / 2 - 5}
-              visible={isSelected}
-            />
+            {isSelected && (
+              <Text
+                text="Monitor"
+                fontSize={9}
+                fill="#333"
+                x={item.width / 2 - 20}
+                y={item.height + 5}
+              />
+            )}
           </Group>
         );
 
@@ -281,6 +309,7 @@ const Canvas: React.FC<CanvasProps> = ({
             id={item.id}
             x={item.x}
             y={item.y}
+            rotation={item.rotation || 0}
             draggable
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
@@ -289,31 +318,27 @@ const Canvas: React.FC<CanvasProps> = ({
             <Rect
               width={item.width}
               height={item.height}
-              cornerRadius={3}
-              fill="#2a2a2a"
-              stroke={isSelected ? "#00ff00" : "#1a1a1a"}
-              strokeWidth={isSelected ? 3 : 2}
+              fill="transparent"
+              stroke={isSelected ? "#00ff00" : "transparent"}
+              strokeWidth={isSelected ? 3 : 0}
             />
-            <Circle
-              x={item.width / 2}
-              y={item.height / 2}
-              radius={8}
-              fill="#1a1a1a"
+            <IconImage
+              IconComponent={Projector}
+              x={0}
+              y={0}
+              width={item.width}
+              height={item.height}
+              color={item.color || "#2c3e50"}
             />
-            <Circle
-              x={item.width / 2}
-              y={item.height / 2}
-              radius={5}
-              fill="#4a4a4a"
-            />
-            <Text
-              text="Projector"
-              fontSize={9}
-              fill="white"
-              x={item.width / 2 - 25}
-              y={item.height + 5}
-              visible={isSelected}
-            />
+            {isSelected && (
+              <Text
+                text="Projector"
+                fontSize={9}
+                fill="#333"
+                x={item.width / 2 - 25}
+                y={item.height + 5}
+              />
+            )}
           </Group>
         );
 
@@ -335,7 +360,6 @@ const Canvas: React.FC<CanvasProps> = ({
         ref={stageRef}
       >
         <Layer>
-          {/* Grid background */}
           {Array.from({ length: Math.ceil(canvasWidth / 20) }).map((_, i) => (
             <Line
               key={`v-${i}`}
