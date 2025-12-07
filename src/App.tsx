@@ -8,24 +8,8 @@ import {
   Monitor, 
   Projector 
 } from 'lucide-react';
+import type { FurnitureType, FurnitureItem } from './types/floorPlan';
 import './App.css';
-
-type FurnitureType = 
-  | 'wall-segment' | 'pillar'  // Basic Shapes
-  | 'rectangle' | 'round-table' | 'arm-chair'  // Furniture
-  | 'monitor' | 'projector';  // Equipment
-
-interface FurnitureItem {
-  id: string;
-  type: FurnitureType;
-  name?: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  rotation?: number;
-  color?: string;
-}
 
 const App = () => {
   const [furniture, setFurniture] = useState<FurnitureItem[]>([]);
@@ -82,7 +66,6 @@ const App = () => {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // Default dimensions for each item type
     const getDimensions = (type: FurnitureType) => {
       switch (type) {
         case 'wall-segment': return { width: 120, height: 20 };

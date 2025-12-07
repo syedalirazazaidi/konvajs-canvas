@@ -1,17 +1,10 @@
 // Service for saving and loading floor plans from database
+import type { FurnitureItem } from '../types/floorPlan';
 
 export interface FloorPlanData {
   id?: string;
   name: string;
-  furniture: Array<{
-    id: string;
-    type: string;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    rotation?: number;
-  }>;
+  furniture: FurnitureItem[];
   createdAt?: string;
   updatedAt?: string;
 }
