@@ -1,8 +1,7 @@
 export type FurnitureType = 
-  | 'wall-segment' | 'pillar'  // Basic Shapes
-  | 'rectangle' | 'round-table' | 'arm-chair'  // Furniture
-  | 'monitor' | 'projector';  // Equipment
-
+  | 'wall-segment' | 'pillar' 
+  | 'rectangle' | 'round-table' | 'arm-chair'  
+  | 'monitor' | 'projector'; 
 export interface FurnitureItem {
   id: string;
   type: FurnitureType;

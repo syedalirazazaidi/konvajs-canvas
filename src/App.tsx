@@ -9,6 +9,9 @@ import {
   Projector 
 } from 'lucide-react';
 import type { FurnitureType, FurnitureItem } from './types/floorPlan';
+import { getDimensions, getDefaultColor } from './utils/furnitureUtils';
+import { saveAsJSON, loadFromJSON, saveToLocalStorage, loadFromLocalStorage, copyJSONToClipboard } from './utils/fileUtils';
+import { updateItemProperty, deleteItem, findItemById } from './utils/itemUtils';
 import './App.css';
 
 const App = () => {
@@ -66,19 +69,6 @@ const App = () => {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    const getDimensions = (type: FurnitureType) => {
-      switch (type) {
-        case 'wall-segment': return { width: 120, height: 20 };
-        case 'pillar': return { width: 40, height: 40 };
-        case 'rectangle': return { width: 80, height: 60 };
-        case 'round-table': return { width: 70, height: 70 };
-        case 'arm-chair': return { width: 50, height: 60 };
-        case 'monitor': return { width: 50, height: 40 };
-        case 'projector': return { width: 60, height: 40 };
-        default: return { width: 60, height: 60 };
-      }
-    };
-
     const dimensions = getDimensions(itemType);
     const newItem: FurnitureItem = {
       id: `item-${nextIdRef.current++}`,
@@ -99,89 +89,57 @@ const App = () => {
 
   const deleteSelected = () => {
     if (selectedId) {
-      setFurniture((prev) => prev.filter((item) => item.id !== selectedId));
+      setFurniture((prev) => deleteItem(prev, selectedId));
       setSelectedId(null);
     }
   };
 
   // Save floor plan as JSON file
-  const saveAsJSON = () => {
-    const floorPlanData = {
-      name: floorPlanName,
-      furniture: furniture,
-      metadata: {
-        createdAt: new Date().toISOString(),
-        canvasWidth: canvasWidth,
-        canvasHeight: canvasHeight,
-      },
-    };
-
-    const jsonString = JSON.stringify(floorPlanData, null, 2);
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${floorPlanName.replace(/\s+/g, '_')}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+  const handleSaveAsJSON = () => {
+    saveAsJSON(floorPlanName, furniture, canvasWidth, canvasHeight);
   };
 
   // Load floor plan from JSON file
-  const loadFromJSON = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLoadFromJSON = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const jsonData = JSON.parse(e.target?.result as string);
-        if (jsonData.furniture && Array.isArray(jsonData.furniture)) {
-          setFurniture(jsonData.furniture);
-          if (jsonData.name) {
-            setFloorPlanName(jsonData.name);
-          }
-          setSelectedId(null);
-          alert('Floor plan loaded successfully!');
-        } else {
-          alert('Invalid floor plan file format');
+    loadFromJSON(
+      file,
+      (data) => {
+        setFurniture(data.furniture);
+        if (data.name) {
+          setFloorPlanName(data.name);
         }
-      } catch (error) {
-        console.error('Error loading JSON:', error);
-        alert('Error loading floor plan file');
+        setSelectedId(null);
+        alert('Floor plan loaded successfully!');
+      },
+      (error) => {
+        alert(error);
       }
-    };
-    reader.readAsText(file);
+    );
     // Reset input so same file can be loaded again
     event.target.value = '';
   };
 
   // Save to localStorage
-  const saveToLocalStorage = () => {
+  const handleSaveToLocalStorage = () => {
     try {
-      const floorPlanData = {
-        name: floorPlanName,
-        furniture: furniture,
-        createdAt: new Date().toISOString(),
-      };
-      localStorage.setItem('floorPlan', JSON.stringify(floorPlanData));
+      saveToLocalStorage(floorPlanName, furniture);
       alert('Floor plan saved to browser storage!');
     } catch (error) {
-      console.error('Error saving to localStorage:', error);
       alert('Error saving floor plan');
     }
   };
 
   // Load from localStorage
-  const loadFromLocalStorage = () => {
+  const handleLoadFromLocalStorage = () => {
     try {
-      const data = localStorage.getItem('floorPlan');
+      const data = loadFromLocalStorage();
       if (data) {
-        const floorPlanData = JSON.parse(data);
-        setFurniture(floorPlanData.furniture || []);
-        if (floorPlanData.name) {
-          setFloorPlanName(floorPlanData.name);
+        setFurniture(data.furniture || []);
+        if (data.name) {
+          setFloorPlanName(data.name);
         }
         setSelectedId(null);
         alert('Floor plan loaded from browser storage!');
@@ -189,57 +147,29 @@ const App = () => {
         alert('No saved floor plan found');
       }
     } catch (error) {
-      console.error('Error loading from localStorage:', error);
       alert('Error loading floor plan');
     }
   };
 
   // Copy JSON to clipboard
-  const copyJSONToClipboard = () => {
-    const floorPlanData = {
-      name: floorPlanName,
-      furniture: furniture,
-      metadata: {
-        createdAt: new Date().toISOString(),
-        canvasWidth: canvasWidth,
-        canvasHeight: canvasHeight,
-      },
-    };
-    const jsonData = JSON.stringify(floorPlanData, null, 2);
-    navigator.clipboard.writeText(jsonData).then(() => {
-      alert('JSON data copied to clipboard!');
-    }).catch((error) => {
-      console.error('Error copying to clipboard:', error);
-      alert('Error copying to clipboard');
-    });
+  const handleCopyJSONToClipboard = () => {
+    copyJSONToClipboard(floorPlanName, furniture, canvasWidth, canvasHeight)
+      .then(() => {
+        alert('JSON data copied to clipboard!');
+      })
+      .catch((error) => {
+        console.error('Error copying to clipboard:', error);
+        alert('Error copying to clipboard');
+      });
   };
 
   // Get selected item
-  const selectedItem = furniture.find(item => item.id === selectedId);
+  const selectedItem = findItemById(furniture, selectedId);
 
   // Update item properties
-  const updateItemProperty = (property: keyof FurnitureItem, value: any) => {
+  const handleUpdateItemProperty = (property: keyof FurnitureItem, value: any) => {
     if (!selectedId) return;
-    
-    setFurniture((prev) =>
-      prev.map((item) =>
-        item.id === selectedId ? { ...item, [property]: value } : item
-      )
-    );
-  };
-
-  // Get default color for item type
-  const getDefaultColor = (type: FurnitureType): string => {
-    switch (type) {
-      case 'wall-segment': return '#8B7355';
-      case 'pillar': return '#E8E8E8';
-      case 'rectangle': return '#E8E8E8';
-      case 'round-table': return '#8B4513';
-      case 'arm-chair': return '#4A4A4A';
-      case 'monitor': return '#1a1a1a';
-      case 'projector': return '#2a2a2a';
-      default: return '#999999';
-    }
+    setFurniture((prev) => updateItemProperty(prev, selectedId, property, value));
   };
 
   const renderFurniture = (item: FurnitureItem) => {
@@ -666,7 +596,7 @@ const App = () => {
         <div className="save-load-section">
           <h3>Save & Load</h3>
           <button
-            onClick={saveAsJSON}
+            onClick={handleSaveAsJSON}
             className="save-btn"
             disabled={furniture.length === 0}
           >
@@ -676,26 +606,26 @@ const App = () => {
             <input
               type="file"
               accept=".json"
-              onChange={loadFromJSON}
+              onChange={handleLoadFromJSON}
               style={{ display: 'none' }}
             />
             <span className="load-btn">Load from JSON File</span>
           </label>
           <button
-            onClick={saveToLocalStorage}
+            onClick={handleSaveToLocalStorage}
             className="save-btn"
             disabled={furniture.length === 0}
           >
             Save to Browser
           </button>
           <button
-            onClick={loadFromLocalStorage}
+            onClick={handleLoadFromLocalStorage}
             className="load-btn"
           >
             Load from Browser
           </button>
           <button
-            onClick={copyJSONToClipboard}
+            onClick={handleCopyJSONToClipboard}
             className="copy-btn"
             disabled={furniture.length === 0}
           >
@@ -753,7 +683,7 @@ const App = () => {
               <input
                 type="text"
                 value={selectedItem.name || `${selectedItem.type.charAt(0).toUpperCase() + selectedItem.type.slice(1).replace('-', ' ')}`}
-                onChange={(e) => updateItemProperty('name', e.target.value)}
+                onChange={(e) => handleUpdateItemProperty('name', e.target.value)}
                 className="property-input"
                 placeholder="Enter name"
               />
@@ -767,7 +697,7 @@ const App = () => {
                   <input
                     type="number"
                     value={selectedItem.width}
-                    onChange={(e) => updateItemProperty('width', parseFloat(e.target.value) || 0)}
+                    onChange={(e) => handleUpdateItemProperty('width', parseFloat(e.target.value) || 0)}
                     className="property-input"
                     min="1"
                   />
@@ -777,7 +707,7 @@ const App = () => {
                   <input
                     type="number"
                     value={selectedItem.height}
-                    onChange={(e) => updateItemProperty('height', parseFloat(e.target.value) || 0)}
+                    onChange={(e) => handleUpdateItemProperty('height', parseFloat(e.target.value) || 0)}
                     className="property-input"
                     min="1"
                   />
@@ -792,7 +722,7 @@ const App = () => {
                 min="0"
                 max="360"
                 value={selectedItem.rotation || 0}
-                onChange={(e) => updateItemProperty('rotation', parseFloat(e.target.value))}
+                onChange={(e) => handleUpdateItemProperty('rotation', parseFloat(e.target.value))}
                 className="rotation-slider"
                 style={{
                   '--slider-progress': `${((selectedItem.rotation || 0) / 360) * 100}%`
@@ -805,7 +735,7 @@ const App = () => {
               <input
                 type="color"
                 value={selectedItem.color || getDefaultColor(selectedItem.type)}
-                onChange={(e) => updateItemProperty('color', e.target.value)}
+                  onChange={(e) => handleUpdateItemProperty('color', e.target.value)}
                 className="color-picker"
               />
             </div>
