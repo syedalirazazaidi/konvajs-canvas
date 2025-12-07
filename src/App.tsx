@@ -151,18 +151,7 @@ const App = () => {
     }
   };
 
-  // Copy JSON to clipboard
-  const handleCopyJSONToClipboard = () => {
-    copyJSONToClipboard(floorPlanName, furniture, canvasWidth, canvasHeight)
-      .then(() => {
-        alert('JSON data copied to clipboard!');
-      })
-      .catch((error) => {
-        console.error('Error copying to clipboard:', error);
-        alert('Error copying to clipboard');
-      });
-  };
-
+  
   // Get selected item
   const selectedItem = findItemById(furniture, selectedId);
 
@@ -594,23 +583,6 @@ const App = () => {
         </div>
 
         <div className="save-load-section">
-          {/* <h3>Save & Load</h3>
-          <button
-            onClick={handleSaveAsJSON}
-            className="save-btn"
-            disabled={furniture.length === 0}
-          >
-            Save as JSON File
-          </button>
-          <label className="load-btn-label">
-            <input
-              type="file"
-              accept=".json"
-              onChange={handleLoadFromJSON}
-              style={{ display: 'none' }}
-            />
-            <span className="load-btn">Load from JSON File</span>
-          </label> */}
           <button
             onClick={handleSaveToLocalStorage}
             className="save-btn"
