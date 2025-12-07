@@ -207,7 +207,7 @@
 }
 
 .toolbar-icon {
-  width: 28px;
+  /* width: 28px; */
   height: 28px;
   border-radius: 2px;
   flex-shrink: 0;

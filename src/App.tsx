@@ -510,7 +510,7 @@ const App = () => {
                 e.dataTransfer.setData('text/plain', 'round-table');
               }}
             >
-              <div className="toolbar-icon">
+              <div className="toolbar-icon ">
                 <CircleDot size={20} color="#2c3e50" />
               </div>
               <span>Round Table</span>

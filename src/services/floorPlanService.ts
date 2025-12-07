@@ -10,7 +10,7 @@ export interface FloorPlanData {
 }
 
 // API Base URL - Update this with your backend URL
-const API_BASE_URL = process.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 /**
  * Save floor plan to database
