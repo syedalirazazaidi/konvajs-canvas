@@ -1,23 +1,28 @@
-import React, { useState, useRef } from 'react';
-import { Stage, Layer, Rect, Circle, Group, Text, Line } from 'react-konva';
-import { 
-  Circle as CircleIcon, 
-  RectangleHorizontal, 
-  CircleDot, 
-  Armchair, 
-  Monitor, 
-  Projector 
-} from 'lucide-react';
-import type { FurnitureType, FurnitureItem } from './types/floorPlan';
-import { getDimensions, getDefaultColor } from './utils/furnitureUtils';
-import { saveAsJSON, loadFromJSON, saveToLocalStorage, loadFromLocalStorage, copyJSONToClipboard } from './utils/fileUtils';
-import { updateItemProperty, deleteItem, findItemById } from './utils/itemUtils';
-import './App.css';
+import React, { useState, useRef } from "react";
+import { Stage, Layer, Rect, Circle, Group, Text, Line } from "react-konva";
+import {
+  Circle as CircleIcon,
+  RectangleHorizontal,
+  CircleDot,
+  Armchair,
+  Monitor,
+  Projector,
+} from "lucide-react";
+import type { FurnitureType, FurnitureItem } from "./types/floorPlan";
+import { getDimensions, getDefaultColor } from "./utils/furnitureUtils";
+import { saveToLocalStorage, loadFromLocalStorage } from "./utils/fileUtils";
+import {
+  updateItemProperty,
+  deleteItem,
+  findItemById,
+} from "./utils/itemUtils";
+import PropertiesPanel from "./components/PropertiesPanel";
+import "./App.css";
 
 const App = () => {
   const [furniture, setFurniture] = useState<FurnitureItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [floorPlanName, setFloorPlanName] = useState<string>('My Floor Plan');
+  const [floorPlanName, setFloorPlanName] = useState<string>("My Floor Plan");
   const stageRef = useRef<any>(null);
   const nextIdRef = useRef(0);
 
@@ -53,12 +58,16 @@ const App = () => {
   const handleStageDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    const itemType = e.dataTransfer.getData('text/plain') as FurnitureType;
+
+    const itemType = e.dataTransfer.getData("text/plain") as FurnitureType;
     const validTypes: FurnitureType[] = [
-      'wall-segment', 'pillar',
-      'rectangle', 'round-table', 'arm-chair',
-      'monitor', 'projector'
+      "wall-segment",
+      "pillar",
+      "rectangle",
+      "round-table",
+      "arm-chair",
+      "monitor",
+      "projector",
     ];
     if (!itemType || !validTypes.includes(itemType)) {
       return;
@@ -94,41 +103,13 @@ const App = () => {
     }
   };
 
-  // Save floor plan as JSON file
-  const handleSaveAsJSON = () => {
-    saveAsJSON(floorPlanName, furniture, canvasWidth, canvasHeight);
-  };
-
-  // Load floor plan from JSON file
-  const handleLoadFromJSON = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    loadFromJSON(
-      file,
-      (data) => {
-        setFurniture(data.furniture);
-        if (data.name) {
-          setFloorPlanName(data.name);
-        }
-        setSelectedId(null);
-        alert('Floor plan loaded successfully!');
-      },
-      (error) => {
-        alert(error);
-      }
-    );
-    // Reset input so same file can be loaded again
-    event.target.value = '';
-  };
-
   // Save to localStorage
   const handleSaveToLocalStorage = () => {
     try {
       saveToLocalStorage(floorPlanName, furniture);
-      alert('Floor plan saved to browser storage!');
+      alert("Floor plan saved to browser storage!");
     } catch (error) {
-      alert('Error saving floor plan');
+      alert("Error saving floor plan");
     }
   };
 
@@ -142,30 +123,34 @@ const App = () => {
           setFloorPlanName(data.name);
         }
         setSelectedId(null);
-        alert('Floor plan loaded from browser storage!');
+        alert("Floor plan loaded from browser storage!");
       } else {
-        alert('No saved floor plan found');
+        alert("No saved floor plan found");
       }
     } catch (error) {
-      alert('Error loading floor plan');
+      alert("Error loading floor plan");
     }
   };
 
-  
   // Get selected item
   const selectedItem = findItemById(furniture, selectedId);
 
   // Update item properties
-  const handleUpdateItemProperty = (property: keyof FurnitureItem, value: any) => {
+  const handleUpdateItemProperty = (
+    property: keyof FurnitureItem,
+    value: any
+  ) => {
     if (!selectedId) return;
-    setFurniture((prev) => updateItemProperty(prev, selectedId, property, value));
+    setFurniture((prev) =>
+      updateItemProperty(prev, selectedId, property, value)
+    );
   };
 
   const renderFurniture = (item: FurnitureItem) => {
     const isSelected = item.id === selectedId;
 
     switch (item.type) {
-      case 'wall-segment':
+      case "wall-segment":
         return (
           <Group
             key={item.id}
@@ -182,7 +167,7 @@ const App = () => {
               width={item.width}
               height={item.height}
               fill={item.color || getDefaultColor(item.type)}
-              stroke={isSelected ? '#00ff00' : '#654321'}
+              stroke={isSelected ? "#00ff00" : "#654321"}
               strokeWidth={isSelected ? 3 : 2}
             />
             <Line
@@ -201,7 +186,7 @@ const App = () => {
           </Group>
         );
 
-      case 'rectangle':
+      case "rectangle":
         return (
           <Group
             key={item.id}
@@ -218,7 +203,7 @@ const App = () => {
               width={item.width}
               height={item.height}
               fill={item.color || getDefaultColor(item.type)}
-              stroke={isSelected ? '#00ff00' : '#999'}
+              stroke={isSelected ? "#00ff00" : "#999"}
               strokeWidth={isSelected ? 3 : 2}
             />
             <Text
@@ -232,7 +217,7 @@ const App = () => {
           </Group>
         );
 
-      case 'pillar':
+      case "pillar":
         return (
           <Group
             key={item.id}
@@ -248,7 +233,7 @@ const App = () => {
             <Circle
               radius={item.width / 2}
               fill={item.color || getDefaultColor(item.type)}
-              stroke={isSelected ? '#00ff00' : '#999'}
+              stroke={isSelected ? "#00ff00" : "#999"}
               strokeWidth={isSelected ? 3 : 2}
             />
             <Text
@@ -262,7 +247,7 @@ const App = () => {
           </Group>
         );
 
-      case 'arm-chair':
+      case "arm-chair":
         return (
           <Group
             key={item.id}
@@ -279,7 +264,7 @@ const App = () => {
               height={item.height}
               cornerRadius={5}
               fill={item.color || getDefaultColor(item.type)}
-              stroke={isSelected ? '#00ff00' : '#2A2A2A'}
+              stroke={isSelected ? "#00ff00" : "#2A2A2A"}
               strokeWidth={isSelected ? 3 : 2}
             />
             <Rect
@@ -308,7 +293,7 @@ const App = () => {
           </Group>
         );
 
-      case 'round-table':
+      case "round-table":
         return (
           <Group
             key={item.id}
@@ -324,13 +309,10 @@ const App = () => {
             <Circle
               radius={item.width / 2}
               fill={item.color || getDefaultColor(item.type)}
-              stroke={isSelected ? '#00ff00' : '#654321'}
+              stroke={isSelected ? "#00ff00" : "#654321"}
               strokeWidth={isSelected ? 3 : 2}
             />
-            <Circle
-              radius={item.width / 2 - 5}
-              fill="#D2691E"
-            />
+            <Circle radius={item.width / 2 - 5} fill="#D2691E" />
             <Text
               text={item.name || "Round Table"}
               fontSize={9}
@@ -342,7 +324,7 @@ const App = () => {
           </Group>
         );
 
-      case 'monitor':
+      case "monitor":
         return (
           <Group
             key={item.id}
@@ -360,7 +342,7 @@ const App = () => {
               height={item.height}
               cornerRadius={2}
               fill={item.color || getDefaultColor(item.type)}
-              stroke={isSelected ? '#00ff00' : '#000'}
+              stroke={isSelected ? "#00ff00" : "#000"}
               strokeWidth={isSelected ? 3 : 2}
             />
             <Rect
@@ -388,7 +370,7 @@ const App = () => {
           </Group>
         );
 
-      case 'projector':
+      case "projector":
         return (
           <Group
             key={item.id}
@@ -405,7 +387,7 @@ const App = () => {
               height={item.height}
               cornerRadius={3}
               fill="#2a2a2a"
-              stroke={isSelected ? '#00ff00' : '#1a1a1a'}
+              stroke={isSelected ? "#00ff00" : "#1a1a1a"}
               strokeWidth={isSelected ? 3 : 2}
             />
             <Circle
@@ -440,8 +422,7 @@ const App = () => {
     <div className="app-container">
       <div className="sidebar">
         <h2>Floor Plan Elements</h2>
-        
-        {/* Basic Shapes Section */}
+
         <div className="toolbar">
           <h3>Basic Shapes</h3>
           <div className="toolbar-items">
@@ -449,12 +430,16 @@ const App = () => {
               className="toolbar-item"
               draggable={true}
               onDragStart={(e) => {
-                e.dataTransfer.effectAllowed = 'copy';
-                e.dataTransfer.setData('text/plain', 'wall-segment');
+                e.dataTransfer.effectAllowed = "copy";
+                e.dataTransfer.setData("text/plain", "wall-segment");
               }}
             >
               <div className="toolbar-icon">
-                <RectangleHorizontal size={20} color="#2c3e50" strokeWidth={1.5} />
+                <RectangleHorizontal
+                  size={20}
+                  color="#2c3e50"
+                  strokeWidth={1.5}
+                />
               </div>
               <span>Wall Segr</span>
             </div>
@@ -462,8 +447,8 @@ const App = () => {
               className="toolbar-item"
               draggable={true}
               onDragStart={(e) => {
-                e.dataTransfer.effectAllowed = 'copy';
-                e.dataTransfer.setData('text/plain', 'pillar');
+                e.dataTransfer.effectAllowed = "copy";
+                e.dataTransfer.setData("text/plain", "pillar");
               }}
             >
               <div className="toolbar-icon">
@@ -474,7 +459,6 @@ const App = () => {
           </div>
         </div>
 
-        {/* Furniture Section */}
         <div className="toolbar">
           <h3>Furniture</h3>
           <div className="toolbar-items">
@@ -482,12 +466,16 @@ const App = () => {
               className="toolbar-item"
               draggable={true}
               onDragStart={(e) => {
-                e.dataTransfer.effectAllowed = 'copy';
-                e.dataTransfer.setData('text/plain', 'rectangle');
+                e.dataTransfer.effectAllowed = "copy";
+                e.dataTransfer.setData("text/plain", "rectangle");
               }}
             >
               <div className="toolbar-icon">
-                <RectangleHorizontal size={20} color="#2c3e50" strokeWidth={1.5} />
+                <RectangleHorizontal
+                  size={20}
+                  color="#2c3e50"
+                  strokeWidth={1.5}
+                />
               </div>
               <span>Rectangle</span>
             </div>
@@ -495,8 +483,8 @@ const App = () => {
               className="toolbar-item"
               draggable={true}
               onDragStart={(e) => {
-                e.dataTransfer.effectAllowed = 'copy';
-                e.dataTransfer.setData('text/plain', 'round-table');
+                e.dataTransfer.effectAllowed = "copy";
+                e.dataTransfer.setData("text/plain", "round-table");
               }}
             >
               <div className="toolbar-icon ">
@@ -508,8 +496,8 @@ const App = () => {
               className="toolbar-item"
               draggable={true}
               onDragStart={(e) => {
-                e.dataTransfer.effectAllowed = 'copy';
-                e.dataTransfer.setData('text/plain', 'arm-chair');
+                e.dataTransfer.effectAllowed = "copy";
+                e.dataTransfer.setData("text/plain", "arm-chair");
               }}
             >
               <div className="toolbar-icon">
@@ -520,7 +508,6 @@ const App = () => {
           </div>
         </div>
 
-        {/* Equipment Section */}
         <div className="toolbar">
           <h3>Equipment</h3>
           <div className="toolbar-items">
@@ -528,8 +515,8 @@ const App = () => {
               className="toolbar-item"
               draggable={true}
               onDragStart={(e) => {
-                e.dataTransfer.effectAllowed = 'copy';
-                e.dataTransfer.setData('text/plain', 'monitor');
+                e.dataTransfer.effectAllowed = "copy";
+                e.dataTransfer.setData("text/plain", "monitor");
               }}
             >
               <div className="toolbar-icon">
@@ -541,8 +528,8 @@ const App = () => {
               className="toolbar-item"
               draggable={true}
               onDragStart={(e) => {
-                e.dataTransfer.effectAllowed = 'copy';
-                e.dataTransfer.setData('text/plain', 'projector');
+                e.dataTransfer.effectAllowed = "copy";
+                e.dataTransfer.setData("text/plain", "projector");
               }}
             >
               <div className="toolbar-icon">
@@ -590,17 +577,12 @@ const App = () => {
           >
             Save to Browser
           </button>
-          <button
-            onClick={handleLoadFromLocalStorage}
-            className="load-btn"
-          >
+          <button onClick={handleLoadFromLocalStorage} className="load-btn">
             Load from Browser
           </button>
-          
         </div>
-        
       </div>
-      <div 
+      <div
         className="canvas-container"
         onDrop={handleStageDrop}
         onDragOver={handleStageDragOver}
@@ -621,92 +603,25 @@ const App = () => {
                 strokeWidth={0.5}
               />
             ))}
-            {Array.from({ length: Math.ceil(canvasHeight / 20) }).map((_, i) => (
-              <Line
-                key={`h-${i}`}
-                points={[0, i * 20, canvasWidth, i * 20]}
-                stroke="#e0e0e0"
-                strokeWidth={0.5}
-              />
-            ))}
+            {Array.from({ length: Math.ceil(canvasHeight / 20) }).map(
+              (_, i) => (
+                <Line
+                  key={`h-${i}`}
+                  points={[0, i * 20, canvasWidth, i * 20]}
+                  stroke="#e0e0e0"
+                  strokeWidth={0.5}
+                />
+              )
+            )}
             {furniture.map(renderFurniture)}
           </Layer>
         </Stage>
       </div>
-      
-      {/* Properties Panel */}
-      <div className="properties-panel">
-        <h2>Element Properties</h2>
-        {selectedItem ? (
-          <div className="properties-content">
-            <div className="property-group">
-              <label>Name</label>
-              <input
-                type="text"
-                value={selectedItem.name || `${selectedItem.type.charAt(0).toUpperCase() + selectedItem.type.slice(1).replace('-', ' ')}`}
-                onChange={(e) => handleUpdateItemProperty('name', e.target.value)}
-                className="property-input"
-                placeholder="Enter name"
-              />
-            </div>
 
-            <div className="property-group">
-              <label>Dimensions</label>
-              <div className="dimensions-row">
-                <div className="dimension-input">
-                  <label>Width (px)</label>
-                  <input
-                    type="number"
-                    value={selectedItem.width}
-                    onChange={(e) => handleUpdateItemProperty('width', parseFloat(e.target.value) || 0)}
-                    className="property-input"
-                    min="1"
-                  />
-                </div>
-                <div className="dimension-input">
-                  <label>Height (px)</label>
-                  <input
-                    type="number"
-                    value={selectedItem.height}
-                    onChange={(e) => handleUpdateItemProperty('height', parseFloat(e.target.value) || 0)}
-                    className="property-input"
-                    min="1"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="property-group">
-              <label>Rotation ({selectedItem.rotation || 0}°)</label>
-              <input
-                type="range"
-                min="0"
-                max="360"
-                value={selectedItem.rotation || 0}
-                onChange={(e) => handleUpdateItemProperty('rotation', parseFloat(e.target.value))}
-                className="rotation-slider"
-                style={{
-                  '--slider-progress': `${((selectedItem.rotation || 0) / 360) * 100}%`
-                } as React.CSSProperties}
-              />
-            </div>
-
-            <div className="property-group">
-              <label>Color</label>
-              <input
-                type="color"
-                value={selectedItem.color || getDefaultColor(selectedItem.type)}
-                  onChange={(e) => handleUpdateItemProperty('color', e.target.value)}
-                className="color-picker"
-              />
-            </div>
-          </div>
-        ) : (
-          <div className="no-selection">
-            <p>Select an element to edit its properties</p>
-          </div>
-        )}
-      </div>
+      <PropertiesPanel
+        selectedItem={selectedItem}
+        onUpdateProperty={handleUpdateItemProperty}
+      />
     </div>
   );
 };
