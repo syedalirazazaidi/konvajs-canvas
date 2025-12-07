@@ -18,11 +18,13 @@ type FurnitureType =
 interface FurnitureItem {
   id: string;
   type: FurnitureType;
+  name?: string;
   x: number;
   y: number;
   width: number;
   height: number;
   rotation?: number;
+  color?: string;
 }
 
 const App = () => {
@@ -32,7 +34,9 @@ const App = () => {
   const stageRef = useRef<any>(null);
   const nextIdRef = useRef(0);
 
-  const canvasWidth = window.innerWidth - 250;
+  const sidebarWidth = 240;
+  const propertiesPanelWidth = 280;
+  const canvasWidth = window.innerWidth - sidebarWidth - propertiesPanelWidth;
   const canvasHeight = window.innerHeight - 20;
 
   const handleDragStart = (e: any) => {
@@ -227,6 +231,34 @@ const App = () => {
     });
   };
 
+  // Get selected item
+  const selectedItem = furniture.find(item => item.id === selectedId);
+
+  // Update item properties
+  const updateItemProperty = (property: keyof FurnitureItem, value: any) => {
+    if (!selectedId) return;
+    
+    setFurniture((prev) =>
+      prev.map((item) =>
+        item.id === selectedId ? { ...item, [property]: value } : item
+      )
+    );
+  };
+
+  // Get default color for item type
+  const getDefaultColor = (type: FurnitureType): string => {
+    switch (type) {
+      case 'wall-segment': return '#8B7355';
+      case 'pillar': return '#E8E8E8';
+      case 'rectangle': return '#E8E8E8';
+      case 'round-table': return '#8B4513';
+      case 'arm-chair': return '#4A4A4A';
+      case 'monitor': return '#1a1a1a';
+      case 'projector': return '#2a2a2a';
+      default: return '#999999';
+    }
+  };
+
   const renderFurniture = (item: FurnitureItem) => {
     const isSelected = item.id === selectedId;
 
@@ -238,6 +270,7 @@ const App = () => {
             id={item.id}
             x={item.x}
             y={item.y}
+            rotation={item.rotation || 0}
             draggable
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
@@ -246,7 +279,7 @@ const App = () => {
             <Rect
               width={item.width}
               height={item.height}
-              fill="#8B7355"
+              fill={item.color || getDefaultColor(item.type)}
               stroke={isSelected ? '#00ff00' : '#654321'}
               strokeWidth={isSelected ? 3 : 2}
             />
@@ -256,7 +289,7 @@ const App = () => {
               strokeWidth={1}
             />
             <Text
-              text="Wall"
+              text={item.name || "Wall"}
               fontSize={10}
               fill="white"
               x={item.width / 2 - 15}
@@ -273,6 +306,7 @@ const App = () => {
             id={item.id}
             x={item.x}
             y={item.y}
+            rotation={item.rotation || 0}
             draggable
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
@@ -281,12 +315,12 @@ const App = () => {
             <Rect
               width={item.width}
               height={item.height}
-              fill="#E8E8E8"
+              fill={item.color || getDefaultColor(item.type)}
               stroke={isSelected ? '#00ff00' : '#999'}
               strokeWidth={isSelected ? 3 : 2}
             />
             <Text
-              text="Rectangle"
+              text={item.name || "Rectangle"}
               fontSize={10}
               fill="#333"
               x={item.width / 2 - 30}
@@ -303,6 +337,7 @@ const App = () => {
             id={item.id}
             x={item.x}
             y={item.y}
+            rotation={item.rotation || 0}
             draggable
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
@@ -310,7 +345,7 @@ const App = () => {
           >
             <Circle
               radius={item.width / 2}
-              fill="#E8E8E8"
+              fill={item.color || getDefaultColor(item.type)}
               stroke={isSelected ? '#00ff00' : '#999'}
               strokeWidth={isSelected ? 3 : 2}
             />
@@ -341,7 +376,7 @@ const App = () => {
               width={item.width}
               height={item.height}
               cornerRadius={5}
-              fill="#4A4A4A"
+              fill={item.color || getDefaultColor(item.type)}
               stroke={isSelected ? '#00ff00' : '#2A2A2A'}
               strokeWidth={isSelected ? 3 : 2}
             />
@@ -361,7 +396,7 @@ const App = () => {
               fill="#5A5A5A"
             />
             <Text
-              text="Arm Chair"
+              text={item.name || "Arm Chair"}
               fontSize={9}
               fill="white"
               x={item.width / 2 - 25}
@@ -378,6 +413,7 @@ const App = () => {
             id={item.id}
             x={item.x}
             y={item.y}
+            rotation={item.rotation || 0}
             draggable
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
@@ -385,7 +421,7 @@ const App = () => {
           >
             <Circle
               radius={item.width / 2}
-              fill="#8B4513"
+              fill={item.color || getDefaultColor(item.type)}
               stroke={isSelected ? '#00ff00' : '#654321'}
               strokeWidth={isSelected ? 3 : 2}
             />
@@ -394,7 +430,7 @@ const App = () => {
               fill="#D2691E"
             />
             <Text
-              text="Round Table"
+              text={item.name || "Round Table"}
               fontSize={9}
               fill="white"
               x={-30}
@@ -411,6 +447,7 @@ const App = () => {
             id={item.id}
             x={item.x}
             y={item.y}
+            rotation={item.rotation || 0}
             draggable
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
@@ -420,7 +457,7 @@ const App = () => {
               width={item.width}
               height={item.height}
               cornerRadius={2}
-              fill="#1a1a1a"
+              fill={item.color || getDefaultColor(item.type)}
               stroke={isSelected ? '#00ff00' : '#000'}
               strokeWidth={isSelected ? 3 : 2}
             />
@@ -721,6 +758,80 @@ const App = () => {
             {furniture.map(renderFurniture)}
           </Layer>
         </Stage>
+      </div>
+      
+      {/* Properties Panel */}
+      <div className="properties-panel">
+        <h2>Element Properties</h2>
+        {selectedItem ? (
+          <div className="properties-content">
+            <div className="property-group">
+              <label>Name</label>
+              <input
+                type="text"
+                value={selectedItem.name || `${selectedItem.type.charAt(0).toUpperCase() + selectedItem.type.slice(1).replace('-', ' ')}`}
+                onChange={(e) => updateItemProperty('name', e.target.value)}
+                className="property-input"
+                placeholder="Enter name"
+              />
+            </div>
+
+            <div className="property-group">
+              <label>Dimensions</label>
+              <div className="dimensions-row">
+                <div className="dimension-input">
+                  <label>Width (px)</label>
+                  <input
+                    type="number"
+                    value={selectedItem.width}
+                    onChange={(e) => updateItemProperty('width', parseFloat(e.target.value) || 0)}
+                    className="property-input"
+                    min="1"
+                  />
+                </div>
+                <div className="dimension-input">
+                  <label>Height (px)</label>
+                  <input
+                    type="number"
+                    value={selectedItem.height}
+                    onChange={(e) => updateItemProperty('height', parseFloat(e.target.value) || 0)}
+                    className="property-input"
+                    min="1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="property-group">
+              <label>Rotation ({selectedItem.rotation || 0}°)</label>
+              <input
+                type="range"
+                min="0"
+                max="360"
+                value={selectedItem.rotation || 0}
+                onChange={(e) => updateItemProperty('rotation', parseFloat(e.target.value))}
+                className="rotation-slider"
+                style={{
+                  '--slider-progress': `${((selectedItem.rotation || 0) / 360) * 100}%`
+                } as React.CSSProperties}
+              />
+            </div>
+
+            <div className="property-group">
+              <label>Color</label>
+              <input
+                type="color"
+                value={selectedItem.color || getDefaultColor(selectedItem.type)}
+                onChange={(e) => updateItemProperty('color', e.target.value)}
+                className="color-picker"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="no-selection">
+            <p>Select an element to edit its properties</p>
+          </div>
+        )}
       </div>
     </div>
   );
