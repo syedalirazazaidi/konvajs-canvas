@@ -594,7 +594,7 @@ const App = () => {
         </div>
 
         <div className="save-load-section">
-          <h3>Save & Load</h3>
+          {/* <h3>Save & Load</h3>
           <button
             onClick={handleSaveAsJSON}
             className="save-btn"
@@ -610,7 +610,7 @@ const App = () => {
               style={{ display: 'none' }}
             />
             <span className="load-btn">Load from JSON File</span>
-          </label>
+          </label> */}
           <button
             onClick={handleSaveToLocalStorage}
             className="save-btn"
@@ -624,20 +624,9 @@ const App = () => {
           >
             Load from Browser
           </button>
-          <button
-            onClick={handleCopyJSONToClipboard}
-            className="copy-btn"
-            disabled={furniture.length === 0}
-          >
-            Copy JSON to Clipboard
-          </button>
+          
         </div>
-        {/* <div className="info">
-          <p>• Drag items from sidebar to canvas</p>
-          <p>• Click items to select</p>
-          <p>• Drag items on canvas to move</p>
-          <p>• Delete selected items</p>
-        </div> */}
+        
       </div>
       <div 
         className="canvas-container"
